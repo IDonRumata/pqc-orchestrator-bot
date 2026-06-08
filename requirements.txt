@@ -7,7 +7,7 @@ asyncpg==0.30.0
 pgvector==0.3.6
 
 # Configuration and validation
-pydantic==2.10.4
+pydantic==2.9.2
 pydantic-settings==2.7.1
 
 # HTTP client and resilience

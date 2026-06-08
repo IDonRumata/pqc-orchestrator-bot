@@ -11,7 +11,7 @@ from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
 from datetime import datetime
 
-from sqlalchemy import select, text
+from sqlalchemy import func, select, text
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -221,6 +221,27 @@ async def record_monitored_item(
         .on_conflict_do_nothing(index_elements=["external_id"])
     )
     await session.execute(stmt)
+
+
+# --- Statistics for status dashboard --------------------------------------
+
+
+async def get_chunk_count() -> int:
+    """Return the total number of indexed knowledge chunks."""
+    async with session_scope() as session:
+        result = await session.execute(
+            select(func.count()).select_from(KnowledgeChunk)
+        )
+        return result.scalar_one()
+
+
+async def get_monitored_count() -> int:
+    """Return the total number of stored news monitor items."""
+    async with session_scope() as session:
+        result = await session.execute(
+            select(func.count()).select_from(MonitoredItem)
+        )
+        return result.scalar_one()
 
 
 # --- Observability operations ----------------------------------------------

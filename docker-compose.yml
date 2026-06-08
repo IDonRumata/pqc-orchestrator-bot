@@ -6,10 +6,8 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-    # Bind only to localhost so the database is never exposed to the network.
-    # Port 5433 on the host to avoid conflict with other Postgres instances.
-    ports:
-      - "127.0.0.1:5433:5432"
+    # No host port mapping - bot connects via internal Docker network (db:5432).
+    # This avoids any host port conflicts with other Postgres instances on the VPS.
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:

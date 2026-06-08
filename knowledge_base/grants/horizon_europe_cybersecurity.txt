@@ -1,0 +1,123 @@
+HORIZON EUROPE - CYBERSECURITY AND PQC FUNDING OPPORTUNITIES
+EU Framework Programme for Research and Innovation (2021-2027)
+Total budget: 95.5 billion EUR
+Managed by: European Commission, CINEA, EIC, ENISA (co-funded calls)
+Main portal: https://eic.ec.europa.eu / https://ec.europa.eu/info/funding-tenders/
+
+=== PROGRAMME STRUCTURE RELEVANT TO PQC ===
+
+Pillar I: Excellent Science
+- European Research Council (ERC): fundamental research grants
+- Marie Sklodowska-Curie Actions (MSCA): researcher mobility
+
+Pillar II: Global Challenges and European Industrial Competitiveness
+- Cluster 3: Civil Security for Society (directly relevant to PQC)
+  * Budget 2021-2027: ~1.6 billion EUR
+  * Covers: cybersecurity, digital privacy, trust technologies
+  * Post-quantum cryptography is explicitly listed as priority area
+  * NIS2/DORA compliance tools are eligible for Cluster 3 funding
+
+Pillar III: Innovative Europe
+- European Innovation Council (EIC): flagship for startups
+- European Innovation Ecosystems (EIE)
+
+=== EIC ACCELERATOR - PRIMARY INSTRUMENT FOR PQC STARTUPS ===
+
+EIC Accelerator: https://eic.ec.europa.eu/eic-funding-opportunities/eic-accelerator_en
+
+Type: Non-dilutive grant + optional equity investment
+Grant component: up to EUR 2.5 million (non-dilutive) - covers R&D and innovation
+Equity component: up to EUR 15 million (EIC Fund takes equity stake, optional)
+Blended finance: grant + equity combined up to EUR 17.5 million total
+
+Eligibility:
+- SMEs (fewer than 250 employees, under EUR 50M turnover or EUR 43M balance sheet)
+- Established in EU Member States or associated countries
+- Innovative technology with market potential
+- "Deep tech" focus preferred: cybersecurity, PQC, quantum technologies qualify
+
+Application requirements:
+- Step 1: Short application (online form, ~10 pages, pitch video)
+- Step 2: Full proposal (detailed plan, team CVs, financials, market analysis)
+- Step 3: Interview with jury panel
+
+Key selection criteria:
+- Excellence and innovation level (breakthrough potential)
+- Impact (market size, scalability, societal value)
+- Quality and maturity of the team
+- Technology readiness level (TRL 5+ preferred for Accelerator)
+
+PQC startup fit for EIC Accelerator:
+- HNDL threat = "imminent market need" (strong impact case)
+- NIST FIPS 203/204/205 = "validated technology" (standardization reduces risk)
+- EU regulatory push (NIS2, DORA) = "regulatory pull" (market demand driver)
+- SME quantum cybersecurity market growing: projected 5.1B USD by 2030 (MarketsandMarkets)
+
+EIC Accelerator open calls: approximately 3 cut-off dates per year
+Check: https://eic.ec.europa.eu/eic-funding-opportunities/eic-accelerator_en
+
+=== HORIZON EUROPE CLUSTER 3 - PROJECT GRANTS ===
+
+Cluster 3 Topic: "Cybersecurity - Next Generation Internet and PQC"
+Typical topics appearing in Work Programmes:
+- HORIZON-CL3-2024-CS-01: Cybersecurity in the domain of NIS2 and the DORA regulation
+- HORIZON-CL3-2024-CS-02: Tools supporting cybersecurity risk assessment
+- HORIZON-CL3-PQC: Post-quantum cryptography migration tools (ad hoc calls)
+
+Consortium requirement: typically 3+ partners from 3+ EU countries (or associated)
+Grant rate: 70-100% (100% for non-profit research, 70% for commercial entities)
+Project size: typically EUR 3-8 million for multi-partner projects
+
+For a startup as consortium partner: can receive up to EUR 2-3 million as subcontractor/SME partner.
+
+ENISA-JRC co-funded calls:
+ENISA regularly co-designs calls with the Commission focused on:
+- PQC migration tools and frameworks
+- Cryptographic agility standards
+- Quantum readiness assessments
+
+=== EIC PATHFINDER - FOR EARLY-STAGE RESEARCH ===
+
+EIC Pathfinder Open: https://eic.ec.europa.eu/eic-funding-opportunities/eic-pathfinder_en
+Budget: up to EUR 4 million per project, typically EUR 2-4M
+For: breakthrough research, TRL 1-4
+Consortium: typically 2-6 partners, lower consortium requirements than main Horizon calls
+
+Suitable if PQC startup is at early research stage or wants to develop novel PQC algorithms.
+
+=== HORIZON EUROPE APPLICATION PROCESS ===
+
+Portal: https://eic.ec.europa.eu or https://ec.europa.eu/info/funding-tenders/
+Steps:
+1. Create EU login account at https://webgate.ec.europa.eu/
+2. Register organization in Funding and Tenders Portal
+3. Find open call under relevant Work Programme
+4. Prepare and submit application before deadline
+
+EU PIC (Participant Identification Code): required for all applicants
+- Register free: https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/how-to-participate/participant-register
+
+Timing: typical evaluation period 3-5 months, funding start ~6 months after deadline
+
+Budget eligibility:
+- Personnel costs (salaries + overheads up to 25% flat rate)
+- Subcontracting (limited)
+- Travel and subsistence
+- Equipment and infrastructure (amortized or full cost)
+- Other direct costs
+
+=== NATIONAL CONTACT POINTS (NCP) - FREE ADVISORY ===
+
+For Polish applicants:
+- KPK (Krajowy Punkt Kontaktowy): https://www.kpk.gov.pl/
+- KPK provides: free proposal review, matchmaking, writing support
+- Address: Al. Niepodleglosci 188B, 00-608 Warsaw
+- National Contact Person for Cluster 3/Cybersecurity: available via KPK website
+
+=== IMPORTANT DATES AND DEADLINES ===
+
+Work Programmes: published yearly (2024 WP, 2025 WP)
+EIC Accelerator cut-offs 2025: typically March, June, October
+Cluster 3 typical calls: published December-January for spring deadlines
+
+Always verify current deadlines at: https://ec.europa.eu/info/funding-tenders/

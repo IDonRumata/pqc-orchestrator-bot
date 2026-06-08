@@ -1,0 +1,166 @@
+ENISA POST-QUANTUM CRYPTOGRAPHY GUIDELINES
+European Union Agency for Cybersecurity (ENISA)
+Key publications: "Post-Quantum Cryptography - Current State and Quantum Mitigation" (2021),
+"Post-Quantum Cryptography Integration Study" (2022), "ENISA Threat Landscape 2024",
+updated guidance on NIS2 cryptographic requirements (2024)
+Reference: https://www.enisa.europa.eu/publications/post-quantum-cryptography-current-state-and-quantum-mitigation
+
+=== THREAT LANDSCAPE: HARVEST NOW DECRYPT LATER (HNDL) ===
+
+HNDL Attack (already active):
+Nation-state adversaries are actively intercepting and archiving encrypted communications
+TODAY with the intent to decrypt them once cryptographically relevant quantum computers (CRQCs)
+become available (estimated: 2030-2035 by NCSC/BSI/ENISA consensus).
+
+HNDL risk is immediate for:
+- Government and diplomatic communications
+- Long-term financial records and contracts
+- Medical records and genomic data
+- Intellectual property and trade secrets
+- Personal data with >10 year privacy requirements (GDPR Art. 5 storage limitation)
+- Critical infrastructure design documents
+
+HNDL risk timeline:
+- 2024-2026: Migration planning and hybrid deployment phase
+- 2027-2029: Core systems migration for highest-risk data
+- 2030-2033: Full PQC migration for all sensitive systems
+
+=== ALGORITHMS CURRENTLY AT RISK (ENISA CATEGORIZATION) ===
+
+Quantum-vulnerable (marked for replacement):
+- RSA (all key sizes: 2048, 4096) - vulnerable to Shor's algorithm
+- ECC (P-256, P-384, secp256k1, Ed25519) - vulnerable to Shor's algorithm
+- DH / DHE / ECDH / ECDHE - key exchange vulnerable
+- DSA / ECDSA - signature schemes vulnerable
+
+Still quantum-safe (symmetric):
+- AES-256: quantum-safe (Grover's algorithm only halves effective key length; 256-bit remains secure)
+- AES-128: marginal (effective 64-bit post-quantum - below ENISA recommended threshold)
+- SHA-256: quantum-safe for most applications
+- SHA-512: fully quantum-safe
+- SHA-3 family: quantum-safe
+
+=== ENISA-RECOMMENDED PQC ALGORITHMS ===
+
+Following NIST PQC standardization (FIPS 203/204/205, August 2024):
+
+KEY ENCAPSULATION MECHANISMS (KEM / Key Exchange):
+- ML-KEM (Module Lattice KEM, formerly Kyber) - NIST FIPS 203
+  * ML-KEM-512: equivalent to AES-128 (ENISA: acceptable for non-critical)
+  * ML-KEM-768: equivalent to AES-192 (ENISA PRIMARY RECOMMENDATION)
+  * ML-KEM-1024: equivalent to AES-256 (ENISA: for highest-sensitivity data)
+
+DIGITAL SIGNATURES:
+- ML-DSA (Module Lattice DSA, formerly Dilithium) - NIST FIPS 204
+  * ML-DSA-44: ~128-bit security (smallest, fastest)
+  * ML-DSA-65: ~192-bit security (ENISA PRIMARY RECOMMENDATION)
+  * ML-DSA-87: ~256-bit security (highest security)
+
+- SLH-DSA (Stateless Hash-based DSA, formerly SPHINCS+) - NIST FIPS 205
+  * Conservative choice: security based only on hash functions
+  * Larger signatures than ML-DSA
+  * Recommended for long-term signatures (certificates, code signing)
+  * Variants: SLH-DSA-SHAKE-128s (fast), SLH-DSA-SHA2-256s (conservative)
+
+=== HYBRID DEPLOYMENT STRATEGY ===
+
+ENISA and BSI strongly recommend hybrid schemes during transition:
+- Combine classical and PQC algorithms in TLS handshake
+- Key exchange: X25519 + ML-KEM-768 (already default in Chrome 131+, Firefox 132+)
+- Signatures: ECDSA + ML-DSA (for certificates)
+- Rationale: if PQC algorithm has unforeseen weakness, classical component still protects;
+  if classical is broken by quantum, PQC component still protects
+
+TLS 1.3 with hybrid:
+- New IANA TLS group: X25519MLKEM768 (RFC 9450 process)
+- HPKE (Hybrid Public Key Encryption) supports PQC integration
+- OpenSSL 3.5+, Bouncy Castle, liboqs support ML-KEM in TLS
+
+=== IMPLEMENTATION GUIDANCE BY USE CASE ===
+
+TLS / HTTPS:
+- Migrate to TLS 1.3 (mandatory)
+- Enable X25519MLKEM768 as key exchange (hybrid)
+- Timeline: 2025-2027 for all public services
+
+File encryption / data at rest:
+- AES-256-GCM for symmetric encryption (quantum-safe)
+- Use ML-KEM for key wrapping if asymmetric key protection needed
+- Re-encrypt archives with 10+ year retention
+
+Code signing and software distribution:
+- Add ML-DSA signatures alongside existing ECDSA/RSA
+- Certificate authorities moving to hybrid certificates (2025-2028)
+
+PKI and certificates:
+- Short-lived certificates: lower immediate risk (typically <1 year validity)
+- Long-lived certificates (code signing, CA roots): HIGH PRIORITY for PQC migration
+- IETF draft: composite certificates support multiple algorithms in one certificate
+
+Email (S/MIME and PGP):
+- S/MIME with PQC: experimental, standards in progress (IETF)
+- PGP: plans for ML-KEM and ML-DSA integration
+- Immediate risk: encrypted emails stored long-term
+
+SSH:
+- OpenSSH 9.x supports ML-KEM in key exchange
+- Enable for sensitive administrative access
+
+=== CRYPTOGRAPHIC AGILITY ===
+
+Core ENISA principle: systems must be designed for cryptographic agility.
+Definition: ability to switch cryptographic algorithms without major architectural changes.
+
+Cryptographic agility requirements:
+1. Centralize cryptographic operations in dedicated modules/services
+2. Abstract algorithm choices from application code (configure, don't hardcode)
+3. Maintain algorithm inventory and lifecycle tracking
+4. Test migration procedures before emergency is needed
+5. Vendor agreements must include PQC migration roadmap commitments
+
+=== COMPLIANCE TIMELINE (ENISA ROADMAP) ===
+
+2024 (NOW): Assessment phase
+- Complete cryptographic inventory of all systems
+- Identify data with >10 year sensitivity (HNDL risk)
+- Assess current PKI, TLS, VPN, signing infrastructure
+- Prioritize migration backlog
+
+2025-2026: Planning and pilot phase
+- Deploy hybrid TLS in external-facing services
+- Pilot ML-KEM in highest-risk data channels
+- Update key management policies to include PQC roadmap
+- Begin vendor pressure for PQC-capable hardware (HSMs, tokens)
+
+2027-2029: Core migration phase
+- Migrate long-lived certificates and PKI
+- Migrate data-at-rest encryption for sensitive archives
+- Update enterprise VPN solutions
+- Complete HSM/crypto hardware refresh
+
+2030+: Final phase and maintenance
+- Complete migration for all public and government services
+- Retire classical asymmetric cryptography in new deployments
+- Monitor for algorithm compromise (cryptographic agility in use)
+
+=== ENISA PQC AUDIT FRAMEWORK ===
+
+ENISA-aligned PQC audit covers:
+1. Cryptographic asset discovery: enumerate all algorithms, keys, certificates, protocols
+2. Risk prioritization: data sensitivity vs. HNDL exposure window
+3. Compliance gap: NIS2 Art. 21(2)(h), DORA RTS cryptographic requirements
+4. Technical controls assessment: TLS versions, key sizes, HSM capabilities
+5. Process maturity: does entity have key management policy? Cryptographic agility plan?
+6. Vendor assessment: are third-party cryptographic dependencies PQC-ready?
+7. Roadmap development: phased migration plan with milestones and budget estimates
+8. Board reporting: management-level summary of quantum risk and mitigation investment
+
+=== REFERENCES ===
+
+- ENISA Post-Quantum Cryptography Integration Study: https://www.enisa.europa.eu/
+- NIST PQC Project: https://csrc.nist.gov/projects/post-quantum-cryptography
+- NIST FIPS 203 (ML-KEM): https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.203.pdf
+- NIST FIPS 204 (ML-DSA): https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.204.pdf
+- NIST FIPS 205 (SLH-DSA): https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.205.pdf
+- BSI Migration Guide: https://www.bsi.bund.de/EN/Themen/Unternehmen-und-Organisationen/Informationen-und-Empfehlungen/Quantentechnologien-und-Post-Quanten-Kryptografie/
+- Open Quantum Safe (liboqs): https://openquantumsafe.org/

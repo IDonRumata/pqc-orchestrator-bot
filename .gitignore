@@ -8,9 +8,8 @@ __pycache__/
 .venv/
 venv/
 
-# Knowledge base source documents (may be large or licensed)
-knowledge_base/*
-!knowledge_base/.gitkeep
+# Knowledge base: NIST FIPS PDFs and text summaries are tracked (public domain)
+# Add *.pdf to ignore here if you want to exclude large private docs later
 
 # Local model cache (fastembed downloads here)
 .cache/

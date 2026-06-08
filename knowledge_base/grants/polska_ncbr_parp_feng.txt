@@ -1,0 +1,181 @@
+POLSKIE PROGRAMY GRANTOWE I DOFINANSOWANIA DLA STARTUPOW TECHNOLOGICZNYCH
+Aktualne na: czerwiec 2024 / 2025
+Zrodla: NCBR (ncbr.gov.pl), PARP (parp.gov.pl), FENG (funduszeeuropejskie.gov.pl)
+
+=== FENG - FUNDUSZE EUROPEJSKIE DLA NOWOCZESNEJ GOSPODARKI ===
+
+Oficjalna nazwa: Program Fundusze Europejskie dla Nowoczesnej Gospodarki 2021-2027
+Budzet calkowity: 7,9 mld EUR (z EFRR i budzetu panstwa)
+Instytucja zarzadzajaca: Ministerstwo Funduszy i Polityki Regionalnej
+Glowna strona: https://www.funduszeeuropejskie.gov.pl/feng/
+
+KLUCZOWY INSTRUMENT - SCIEZKA SMART:
+Program: FENG Priorytet 1 - Dzialanie 1.1 "Sciezka SMART"
+Instytucja: PARP (malue i srednie) lub NCBR (duze firmy)
+Typ: jednoetapowy wniosek obejmujacy modulowo caly lancuch innowacji
+
+Sciezka SMART - co mozna dofinansowac (moduly):
+1. Modul B+R (badania i prace rozwojowe) - dotacja 50-80%
+   - Koszty personelu naukowo-badawczego
+   - Sprzet i aparatura
+   - Uslugi zewnetrzne (expertyzy, testy)
+   - Materialy i surowce
+   UWAGA: dla firmy opracowujacej nowe algorytmy PQC lub narzedzia audytu - ten modul jest kluczowy
+
+2. Modul Infrastruktura B+R - dotacja do 70%
+   - Budowa lub modernizacja zaplecza badawczego
+   - Serwery, infrastruktura obliczeniowa, sprzet specjalistyczny
+
+3. Modul Wdrozenie innowacji - pozyczka lub dotacja 45-80%
+   - Przygotowanie do wdrozenia wynikow B+R
+   - Linie produkcyjne, oprogramowanie
+
+4. Modul Cyfryzacja - dotacja 45-85%
+   - Transformacja cyfrowa procesow biznesowych
+   - Narzedzia bezpieczenstwa cybernetycznego kwalifikuja sie tutaj
+
+5. Modul Internacjonalizacja - dotacja do 50%
+   - Wejscie na rynki zagraniczne
+   - Certyfikacje, compliance, badania rynkow docelowych
+
+6. Modul Kompetencje - dotacja do 70%
+   - Szkolenia specjalistyczne
+   - Certyfikacje (CISSP, CISM, PQC-related)
+
+Minimalny budzet projektu Sciezka SMART: brak minimalnego, ale praktycznie od 2 mln PLN
+Maksymalna dotacja: do 20 mln PLN w jednym projekcie (malo lub srednia firma)
+
+Kto moze sie starac:
+- MMP (mikro, male, srednie przedsiebiorstwa) - przez PARP
+- Duze firmy - przez NCBR
+- Konsorcja z uczelniami lub instytutami badawczymi - preferowane dla wyzszych dotacji
+
+Nabory Sciezka SMART 2024-2025: cykliczne, terminy na stronie PARP/NCBR
+- PARP Sciezka SMART: https://www.parp.gov.pl/component/grants/grants/sciezka-smart
+- NCBR Sciezka SMART: https://www.ncbr.gov.pl/programy/sciezka-smart/
+
+=== NCBR - NARODOWE CENTRUM BADAN I ROZWOJU ===
+
+Strona: https://www.ncbr.gov.pl
+Rola: wdrazanie programow wsparcia B+R, szczegolnie dla duzych podmiotow i konsorcjow
+
+Kluczowe programy NCBR:
+
+1. CyberSecIdea - Program cyberbezpieczenstwa
+   Cel: wsparcie rozwiazanianie dla bezpieczenstwa cybernetycznego
+   Grupy docelowe: startupy, MMP, duze firmy
+   Budzet dotacji: 0,5-5 mln PLN na projekt
+   Tematyka: kryptografia, bezpieczenstwo sieci, systemy IDS/IPS, compliance
+   PQC fit: BEZPOSREDNIO; kryptografia post-kwantowa jest explicite wskazana w dokumentach programowych
+
+2. Szybka Sciezka - dla duzych firm i konsorcjow
+   Dotacja na B+R: 50-80% kosztow kwalifikowalnych
+   Minimalny budzet: 1 mln PLN
+   Typ wsparcia: prace badawcze, prototypowanie, demonstratory
+
+3. Programy NCBR wspolfinansowane z FENG (Priorytet 2):
+   Tematyka "Srodowisko innowacji" - inkubatory i acceleratory
+   Mozliwosc przystapienia do programow wsparcia przez VC lub inkubator
+
+Wskazowki dla NCBR:
+- NCBR silnie preferuje projekty z komponentem naukowym (wspolpraca z uczelnia)
+- Konsorcjum: firma + uczelnia techniczna + ewentualnie instytut badawczy
+- Dokumentacja wlasnosci intelektualnej jest kluczowa
+
+KONTAKT NCBR:
+- Ul. Nowogrodzka 47a, 00-695 Warszawa
+- Tel: +48 22 39 07 401
+- E-mail: info@ncbr.gov.pl
+
+=== PARP - POLSKA AGENCJA ROZWOJU PRZEDSIEBIORCZOSCI ===
+
+Strona: https://www.parp.gov.pl
+Rola: wsparcie MMP we wdrazaniu innowacji, umiendzynarodowieniu, cyfryzacji
+
+Kluczowe programy PARP:
+
+1. Sciezka SMART (przez PARP dla MMP) - patrz sekcja FENG wyzej
+
+2. FENG Dzialanie 2.25 "Wsparcie startupow" - inkubacja
+   Dla: startupow do 24 miesiecy od zalozeniam
+   Wsparcie: mentoring, granty seed (50-200 tys. PLN), przestrzen
+   Kanaly: przez akredytowane akceleratory i inkubatory (lista na parp.gov.pl)
+
+3. Uslugi doradcze dla MMP - BEZPLATNE
+   Zaprojektuj swoj biznes, doradztwo eksportowe, cyfryzacja
+   UWAGA: PARP oferuje bezplatne doradztwo jak ubiegac sie o granty - WARTO SKORZYSTAC
+
+4. PARP Invest - pomoc inwestycyjna
+   Dla firm planujacych wieksza inwestycje produkcyjna lub technologiczna
+
+Typowe kwalifikowalne koszty w programach PARP:
+- Koszty wynagrodzen (brutto + ZUS pracodawcy): glowna pozycja
+- Zakup sprzetu i oprogramowania
+- Uslugi doradcze i eksperckie
+- Koszty uczestnictwa w targach i misjach handlowych (internacjonalizacja)
+- Szkolenia i certyfikacje
+
+KONTAKT PARP:
+- Ul. Panska 81/83, 00-834 Warszawa
+- Tel: 0 801 332 202 (infolinia)
+- E-mail: biuro@parp.gov.pl
+
+=== PROGRAMY REGIONALNE - PERSPEKTYWA 2021-2027 ===
+
+Regiony maja wlasne programy (Regional Smart Specialisation):
+- Mazowieckie: cyfryzacja, AI, cyberbezpieczenstwo - priorytety w RPO Mazowsze
+- Malopolskie: technologie cyfrowe w RPO Malopolska
+- Dolnoslaskie: ICT i cyberbezpieczenstwo - priorytet w FEDS (Fundusze Europejskie Dolny Slask)
+
+Zasada ogolna: spraw sprawdz program regionalny dla woj. gdzie firma jest zarejestrowana
+
+=== POLSKIE AGENCJE I FUNDUSZE INWESTYCYJNE ===
+
+NCBR Investment Fund (NIF): pozyczkowy fundusz dla innowacji
+Kujawsko-Pomorski Fundusz Rozwoju: pozyczki preferencyjne
+BGK (Bank Gospodarstwa Krajowego): niskooprocentowane pozyczki na innowacje i eksport
+PFR Ventures: wspolfinansowanie funduszy VC inwestujacych w polskie MMP
+
+KPCU (Krajowe Centrum Cyberbezpieczenstwa): potencjalny partner dla PQC projektow
+ABW / SKW: wspolpraca przy certyfikacji kryptograficznej
+
+=== STRATEGIA APLIKOWANIA: PQC STARTUP ===
+
+Rekomendowana kolejnosc (minimalizacja kapital wlasnego):
+
+Krok 1 (natychmiastowy - koszt: 0 PLN):
+- Skontaktuj sie z PARP: bezplatne doradztwo w aplikowaniu
+- Zarejestruj sie w Portalu Funduszy Europejskich: https://www.funduszeeuropejskie.gov.pl/
+- Zarejestruj organizacje w EU Funding & Tenders Portal (potrzebny do Horizon/EIC)
+
+Krok 2 (krotkoterminowy: 1-3 miesiacze):
+- Zloz wniosek w Sciezce SMART przez PARP (jezeli < 250 pracownikow)
+- Przygotuj Biznes Plan + Plan B+R + opis innowacyjnosci rozwiazania
+- Opcjonalnie: wejdz do programu inkubacyjnego (PARP Startup, Huge Thing, Startup Hub Poland)
+
+Krok 3 (sredniookreslowy: 3-12 miesiecy):
+- Aplikuj do EIC Accelerator (do 2.5 mln EUR grantu non-dilutive)
+- Nawiaz wspolprace z uczelnia techniczna (WAT, PW, PG) - podnosi szanse w NCBR
+- Rozwaznie w konsorcjum do Horizon Europe Cluster 3
+
+Krok 4 (po uzyskaniu pierwszego grantu):
+- Uzywaj grantu jako leverage dla kolejnych (grantowa historia zwiekszna szanse)
+- Rozwaznie seed round od polskiego VC (PFR Ventures, Inovo VC, OTB Ventures)
+  z komponentem grantu NCBR jako "matching" (FGF - Fundusz Gwarancyjny Finansow)
+
+=== KWALIFIKOWALNE KOSZTY W KONTEKSCIE PQC STARTUPU ===
+
+Koszty typowo kwalifikowalne w programach B+R:
+- Wynagrodzenia kryptografow i inzynierow bezpieczenstwa (max 80% budzetu)
+- Serwery do testowania implementacji PQC (hardware)
+- Licencje na narzedzia analizy kodu (SAST/DAST)
+- Koszty certyfikacji algorytmow i audytow bezpieczenstwa
+- Wspolpraca z ekspertami zewnetrznymi (prawnik specjalizujacy sie w PQC/NIS2)
+- Koszty patentowania (czesto do 100% dofinansowania w module Sciezka SMART)
+- Udzial w konferencjach PQC/cybersecurity (USENIX Security, IEEE S&P, Euro S&P)
+
+NIE kwalifikowalne (typowo):
+- Koszty marketingu i reklamy (w module B+R)
+- Dywidendy, splaty pozyczek
+- Kary umowne
+- Podatek VAT (jezeli firm jest platnikiem VAT)

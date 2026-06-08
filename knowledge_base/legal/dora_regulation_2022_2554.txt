@@ -1,0 +1,201 @@
+DORA REGULATION - KEY PROVISIONS FOR PQC CYBERSECURITY STARTUPS
+Regulation (EU) 2022/2554 of the European Parliament and of the Council
+of 14 December 2022 on digital operational resilience for the financial sector
+(DORA - Digital Operational Resilience Act)
+Official Journal: OJ L 333, 27.12.2022, p. 1-79
+Application date: 17 January 2025 (directly applicable in all EU Member States, no transposition needed)
+Implementing Acts deadline: ESAs issued technical standards throughout 2024
+
+=== SCOPE AND APPLICABILITY ===
+
+Article 2 - Scope
+DORA applies directly to financial entities:
+- Credit institutions (banks)
+- Payment institutions and e-money institutions
+- Investment firms and fund managers (AIFMs, UCITS)
+- Insurance and reinsurance undertakings
+- Insurance intermediaries
+- Crypto-asset service providers (CASPs - relevant for Web3/DeFi)
+- Crowdfunding service providers
+- Trade repositories, central counterparties, trading venues
+- Credit rating agencies, audit firms, data reporting service providers
+
+AND to ICT third-party service providers (ICT TPPs) that provide services to financial entities:
+- Cloud service providers
+- Data analytics providers
+- Data centers
+- Software providers (including cybersecurity software vendors)
+
+CRITICAL: ICT third-party providers servicing financial sector are directly regulated under DORA.
+A PQC audit platform providing services to banks, insurers or investment firms is an ICT TPP
+and must comply with Article 28-30 requirements.
+
+=== ICT RISK MANAGEMENT (CHAPTER II, ARTICLES 5-16) ===
+
+Article 5 - ICT governance and strategy
+Management body must:
+- Maintain active role in ICT risk management strategy
+- Define risk appetite for ICT risk
+- Approve ICT investment allocations
+- Ensure oversight of major ICT incidents
+
+Article 6 - ICT risk management framework
+Financial entities must:
+- Maintain a sound, comprehensive and well-documented ICT risk management framework
+- Continuously identify, classify and document ICT-supported business functions
+- Conduct ICT risk assessments
+- Implement protection measures
+
+Article 9 - Protection measures (CRYPTOGRAPHY PROVISIONS)
+Under protection requirements:
+(b) Policies and procedures for data protection including cryptography and data encryption
+(c) Where appropriate, dedicated and isolated backup ICT systems
+(f) Controls to prevent unauthorized access to cryptographic keys
+
+CRYPTOGRAPHY SPECIFIC:
+- Entities must implement state-of-the-art cryptography appropriate to data sensitivity
+- Must document cryptographic policies including key management
+- Must plan for cryptographic agility (ability to change algorithms without major disruption)
+- PQC readiness: DORA technical standards reference ENISA guidelines on quantum-safe cryptography
+
+Article 13 - Learning and evolving
+Financial entities must maintain ICT security awareness programs and training.
+Post-quantum cryptography awareness must be included as the threat becomes material.
+
+=== ICT-RELATED INCIDENT MANAGEMENT (CHAPTER III, ARTICLES 17-23) ===
+
+Article 17 - ICT-related incident management
+Financial entities must define and implement ICT-related incident management processes:
+- Classify and document ICT-related incidents
+- Detect, manage and notify significant ICT-related incidents
+
+Article 18 - Classification
+Significant incident criteria include:
+- Number of clients affected
+- Duration of the incident
+- Geographic spread
+- Data losses and integrity issues
+- Criticality of services affected
+- Economic impact
+
+Article 19 - Reporting to competent authorities:
+- Initial notification: within 4 hours for significant incidents (major incidents: 2 hours)
+- Intermediate report: within 72 hours
+- Final report: within 1 month
+
+=== DIGITAL OPERATIONAL RESILIENCE TESTING (CHAPTER IV, ARTICLES 24-27) ===
+
+Article 24 - General digital operational resilience testing
+All financial entities must maintain and review a digital operational resilience testing program including:
+- Vulnerability assessments and scans
+- Open source analyses
+- Network security assessments
+- Gap analyses
+- Physical security reviews
+- Questionnaires and scanning software solutions
+- Source code reviews where feasible
+- Scenario-based tests
+- Compatibility testing
+- Performance testing
+- End-to-end testing
+- Penetration testing
+
+Article 25 - Advanced testing (TLPT - Threat-Led Penetration Testing)
+Significant financial institutions must conduct TLPT at least every 3 years.
+Cryptographic testing must include:
+- Testing of key management procedures
+- Encryption implementation review
+- Post-quantum readiness assessment (as per ESA guidelines)
+
+=== ICT THIRD-PARTY RISK MANAGEMENT (CHAPTER V, ARTICLES 28-44) ===
+
+Article 28 - General principles
+Financial entities must manage ICT third-party risk with a rigorous internal framework:
+- Maintain register of ICT TPP contracts
+- Conduct pre-contractual due diligence
+- Include mandatory contractual provisions
+
+Article 30 - Key contractual provisions (mandatory for ICT TPP contracts):
+(a) Full description of all functions, services and data to be provided
+(b) The locations (including data processing locations and regions)
+(c) Provisions on availability, authenticity, integrity and confidentiality of data
+(d) Description of all subcontracting chains
+(e) Audit rights for the financial entity and competent authority
+
+CRITICAL for PQC audit vendors:
+(g) Incident-related service levels
+(h) Obligations for ICT TPP to assist financial entity with supervisory reviews
+(i) Right to terminate in cases of significant changes or security events
+(l) Information security requirements including cryptographic standards
+
+Article 31 - Critical ICT third-party service providers (CTPPs)
+The ESAs may designate certain ICT TPPs as "critical" - these face EU-level oversight:
+- Direct oversight by Lead Overseer (EBA, EIOPA, ESMA)
+- Mandatory audits
+- Binding recommendations
+
+Major cloud providers and large cybersecurity vendors are likely CTPP candidates.
+PQC audit startups below materiality threshold are not CTPP but must meet contract requirements.
+
+=== INFORMATION AND INTELLIGENCE SHARING (ARTICLE 45) ===
+
+Article 45 - Information sharing arrangements
+Financial entities may arrange and participate in threat intelligence sharing arrangements.
+This is explicitly encouraged and exempt from liability for sharing cyber threat information.
+
+=== RELEVANCE TO PQC AUDIT PLATFORM ===
+
+Position of a PQC audit startup under DORA:
+
+As ICT third-party provider to financial entities:
+1. Must implement strong ICT risk management framework (Articles 5-16)
+2. Cryptographic standards: must use state-of-the-art and document PQC migration plan
+3. Incident management: must maintain and communicate incident response capabilities
+4. Contract requirements: must accept Article 30 provisions in client contracts
+5. Audit rights: must allow client financial entities to audit the startup's security
+
+As provider of DORA compliance audit services:
+1. Must deeply understand DORA requirements for financial entities
+2. DORA audit scope includes: ICT risk management, incident management, resilience testing,
+   third-party risk management, cryptographic policies
+3. PQC gap analysis is explicitly within DORA audit scope:
+   - Are cryptographic algorithms state-of-the-art?
+   - Is there a documented plan for post-quantum migration?
+   - Is there cryptographic agility built into systems?
+   - Are key management procedures quantum-resistant?
+
+Key DORA audit deliverables for PQC vendor:
+- Cryptographic inventory (algorithms, protocols, key sizes, lifecycle)
+- HNDL risk assessment for long-lived sensitive financial data
+- PQC migration roadmap aligned with ENISA guidelines
+- Testing protocol for cryptographic controls (Article 24-25)
+- Third-party cryptographic risk assessment (supply chain PQC)
+- Board-ready report for management body (Article 5 governance requirement)
+
+=== IMPLEMENTING TECHNICAL STANDARDS (RTS/ITS) ===
+
+ESAs (EBA, EIOPA, ESMA) issued multiple Technical Standards under DORA:
+- RTS on ICT Risk Management (EBA/RTS/2024/08)
+- RTS on criteria for critical ICT TPP designation
+- RTS on information register
+- ITS on incident reporting formats
+- RTS on TLPT requirements
+
+Key cryptography requirements from RTS:
+- Entities must maintain cryptographic key management policies
+- Encryption must use current NIST/ENISA recommended algorithms
+- RTS explicitly references need to monitor NIST PQC standardization
+- Financial entities in sensitive data categories should begin quantum risk assessment
+
+=== POLISH FINANCIAL SUPERVISION AUTHORITY (KNF) IMPLEMENTATION ===
+
+Poland transposed DORA through Polish Financial Instruments Trading Act amendments.
+KNF (Komisja Nadzoru Finansowego) is the competent authority for DORA in Poland:
+- Website: https://www.knf.gov.pl
+- Polish entities must report DORA-significant incidents to KNF
+- KNF actively monitors cybersecurity maturity of Polish financial sector
+
+Polish banking sector DORA readiness:
+- NBP (National Bank of Poland) coordinates systemic risk assessments
+- Polish banks with EU cross-border operations face dual supervision
+- Smaller Polish fintechs may use DORA simplified ICT risk management (Article 16)

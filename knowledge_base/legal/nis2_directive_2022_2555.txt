@@ -1,0 +1,168 @@
+NIS2 DIRECTIVE - KEY PROVISIONS FOR PQC CYBERSECURITY STARTUPS
+Directive (EU) 2022/2555 of the European Parliament and of the Council
+of 14 December 2022 on measures for a high common level of cybersecurity across the Union
+(Official Journal of the EU: OJ L 333, 27.12.2022, p. 80-152)
+Repeals and replaces: Directive 2016/1148 (NIS1)
+Transposition deadline: 17 October 2024 (Member States must implement into national law)
+
+=== SCOPE AND APPLICABILITY ===
+
+Article 2 - Scope
+NIS2 applies to medium and large entities operating in sectors listed in Annexes I and II,
+AND to all entities regardless of size in sectors designated critical infrastructure.
+
+Annex I - Essential sectors (high criticality):
+- Energy (electricity, gas, oil, heating, cooling, hydrogen)
+- Transport (air, rail, water, road)
+- Banking and financial market infrastructure
+- Health sector
+- Drinking water and wastewater
+- Digital infrastructure: IXPs, DNS, TLD, cloud computing, data centers, CDN, trust services,
+  electronic communications networks and services
+- ICT service management (B2B): managed service providers (MSPs) and managed security
+  service providers (MSSPs) - DIRECTLY RELEVANT to PQC audit platform
+- Space (ground-based infrastructure)
+- Public administration
+
+Annex II - Other important sectors:
+- Postal and courier services
+- Waste management
+- Manufacture/production/distribution of chemicals
+- Food production, processing and distribution
+- Manufacturing (medical devices, electronics, machinery, vehicles)
+- Digital providers: online marketplaces, search engines, social networks
+- Research organizations
+
+Size thresholds (Article 2):
+- Medium entity: 50+ employees OR EUR 10M+ annual turnover/balance sheet
+- Large entity: 250+ employees OR EUR 50M+ annual turnover OR EUR 43M+ balance sheet
+- Micro and small entities are generally exempt UNLESS they are key infrastructure providers,
+  trust service providers, qualified trust service providers, TLD registries, DNS providers,
+  sole providers in Member States, or their disruption would significantly impact public safety.
+
+=== SECURITY REQUIREMENTS (ARTICLE 21) ===
+
+Article 21 - Cybersecurity risk-management measures (CRITICAL for PQC audit services)
+
+Essential and important entities must take appropriate technical, operational and
+organizational measures to manage risks posed to the security of network and information
+systems. Measures must be proportionate to the risk, taking into account:
+- state of the art and EU standards (ENISA guidelines, ISO/IEC, NIST)
+- costs of implementation
+- likelihood of incidents and their severity
+
+Mandatory minimum measures (Article 21(2)):
+(a) Policies on risk analysis and information system security
+(b) Incident handling (prevention, detection, response and recovery)
+(c) Business continuity management and crisis management
+(d) Supply chain security including relationships with direct suppliers and service providers
+(e) Security in network and information systems acquisition, development and maintenance,
+    including vulnerability handling and disclosure
+(f) Policies and procedures to assess effectiveness of cybersecurity risk-management measures
+(g) Basic cyber hygiene practices and cybersecurity training
+(h) Policies and procedures regarding use of cryptography and, where appropriate,
+    ENCRYPTION - directly invokes cryptographic standards including PQC migration
+(i) Human resources security, access control policies and asset management
+(j) Use of multi-factor authentication or continuous authentication solutions,
+    secured voice/video/text communications
+(k) Secured emergency communication systems within the entity
+
+SPECIFIC ON CRYPTOGRAPHY (Article 21(2)(h)):
+The Directive explicitly requires cryptography policies. ENISA guidelines (issued under NIS2)
+specifically recommend migrating to quantum-resistant cryptography given HNDL threats.
+Entities subject to NIS2 that process sensitive data must document their cryptographic
+posture and roadmap for post-quantum migration.
+
+=== INCIDENT REPORTING OBLIGATIONS (ARTICLES 23-24) ===
+
+Article 23 - Reporting obligations:
+1. Early warning: within 24 hours of becoming aware of significant incident
+2. Incident notification: within 72 hours with initial assessment of severity and impact
+3. Intermediate report (if requested by CSIRT or authority)
+4. Final report: within 1 month containing full description, type of threat, cause,
+   applied mitigation measures, cross-border impact
+
+Significant incident criteria:
+- Caused or capable of causing severe operational disruption or financial loss
+- Caused or capable of causing considerable material or non-material damage
+
+=== SUPERVISION AND ENFORCEMENT (ARTICLES 32-36) ===
+
+Article 32-33 - Supervisory regime:
+- Essential entities: ex-ante and ex-post supervision (proactive)
+- Important entities: ex-post supervision (reactive, after incident or complaint)
+
+Article 34 - Supervisory measures:
+- Targeted security audits based on risk assessments
+- On-site and off-site inspections
+- Security scans using non-intrusive technical means
+- Requests for information and evidence of implementation
+- Access to data and documentation
+
+Article 36 - Administrative penalties:
+- Essential entities: up to EUR 10 000 000 or at least 2% of global annual turnover (whichever is higher)
+- Important entities: up to EUR 7 000 000 or at least 1.4% of global annual turnover (whichever is higher)
+
+Article 20 - Governance:
+Management bodies of essential and important entities must:
+- Approve cybersecurity risk-management measures
+- Oversee their implementation
+- Attend cybersecurity training
+- Be liable for infringements
+
+=== SUPPLY CHAIN SECURITY (ARTICLE 22) ===
+
+Article 22 - Union-level coordinated security risk assessment of ICT supply chains:
+ENISA, in cooperation with the Cooperation Group, conducts coordinated risk assessments
+for critical ICT supply chains. This directly applies to cryptographic library vendors
+and PQC implementation providers.
+
+Supply chain cybersecurity requirements for essential entities include:
+- Assessing security posture of suppliers and service providers
+- Overall quality of products and security practices, including secure development processes
+- Presence of vulnerabilities and security patches
+
+=== NATIONAL CYBERSECURITY STRATEGY AND CSIRT ===
+
+Article 7 - National cybersecurity strategy requirements
+Article 10 - CSIRTs (Computer Security Incident Response Teams):
+Each Member State must designate one or more CSIRTs for essential and important sectors.
+
+For Poland: CERT Polska (NASK) and ABW are the primary CSIRTs.
+For EU coordination: ENISA coordinates the EU-CyCLONe (Article 16) for large-scale incidents.
+
+=== ENISA GUIDELINES UNDER NIS2 ===
+
+Under Article 24, ENISA issues guidelines on:
+- Technical requirements, methodologies and simplified processes for cybersecurity measures
+- Binding technical implementation measures (for DNS providers, TLD registries, CSPs, MSSPs)
+- PQC migration guidelines (ENISA has published dedicated PQC guidance documents)
+
+ENISA PQC Recommendation:
+- Entities should inventory current cryptographic assets (cryptographic agility)
+- Plan for hybrid approaches (classic + PQC) as transition strategy
+- Prioritize ML-KEM for key exchange (FIPS 203) and ML-DSA for signatures (FIPS 204)
+- Timeline: ENISA recommends organizations begin migration planning by 2025-2026,
+  complete for critical systems by 2030
+
+=== RELEVANCE TO PQC AUDIT PLATFORM ===
+
+A PQC audit service provider (MSSP/MSP category) is directly subject to NIS2 if:
+- Provides managed security services to essential or important entities
+- Size threshold: medium (50+ employees) or large (250+ employees)
+- If below threshold but sole or dominant provider in a Member State: still covered
+
+Even for non-covered startups, offering NIS2 compliance audits requires expertise in:
+- Article 21 implementation assessments
+- Cryptography policy reviews (Article 21(2)(h))
+- Supply chain security assessments (Article 22)
+- Incident response capabilities
+- Management governance requirements (Article 20)
+
+PQC audit scope derived from NIS2:
+1. Audit current cryptographic inventory (algorithms, key sizes, protocols)
+2. Identify NIS2-mandated cryptography requirements (TLS versions, encryption standards)
+3. Map gap to NIST FIPS 203/204/205 compliance
+4. Assess HNDL (Harvest Now Decrypt Later) risk for long-term sensitive data
+5. Design hybrid migration roadmap
+6. Prepare documentation for supervisory authority review

@@ -1,0 +1,155 @@
+DIGITAL EUROPE PROGRAMME (DEP) - CYBERSECURITY AND PQC
+EU Programme 2021-2027, Budget: 7.6 billion EUR total
+Cybersecurity component: ~1.6 billion EUR (Specific Objective 3)
+Managed by: ENISA, European Cybersecurity Competence Centre (ECCC), CINEA
+Main portal: https://digital-strategy.ec.europa.eu/en/activities/digital-programme
+ECCC portal: https://www.eccc.europa.eu/
+
+=== PROGRAMME OVERVIEW ===
+
+Digital Europe Programme differs from Horizon Europe:
+- Horizon Europe: RESEARCH and INNOVATION (TRL 1-7, R&D)
+- Digital Europe Programme: DEPLOYMENT and UPTAKE (TRL 7-9, operational)
+
+Digital Europe cybersecurity supports:
+- Deployment of existing cybersecurity technologies
+- Capacity building and skills
+- Procurement of cybersecurity tools for public sector
+- Support for NIS2/DORA implementation
+
+=== SPECIFIC OBJECTIVE 3 - CYBERSECURITY ===
+
+Strategic objectives:
+1. Strengthen the cybersecurity capabilities of the EU
+2. Support implementation of the EU Cybersecurity Act and NIS2
+3. Build cybersecurity capacity across Member States
+4. Develop advanced cybersecurity tools and technologies
+
+Post-quantum cryptography is a NAMED PRIORITY in DEP cybersecurity work programmes:
+- Deployment support for quantum-safe TLS migration
+- Tools for cryptographic agility assessment
+- PQC migration frameworks and toolkits
+- Training and awareness on quantum threats
+
+=== ECCC (EUROPEAN CYBERSECURITY COMPETENCE CENTRE) ===
+
+ECCC coordinates EU cybersecurity investment from Digital Europe and Horizon Europe.
+Address: Budapest, Hungary
+Website: https://www.eccc.europa.eu/
+
+ECCC Work Programmes issue Calls for Proposals:
+- Typically 2-4 calls per year
+- SMEs can apply directly or as part of consortia
+- National Coordination Centres (NCCs) support applicants in each country
+
+For Poland - National Coordination Centre:
+NASK (Naukowa i Akademicka Siec Komputerowa)
+Address: Ul. Kolska 12, 01-045 Warszawa
+NCC Poland: https://www.nask.pl/
+CERT Polska is part of NASK and coordinates ECCC matters for Poland
+
+=== TYPICAL CALLS UNDER DIGITAL EUROPE CYBERSECURITY ===
+
+Call structure example (Work Programme 2023-2024):
+- DIGITAL-ECCC-2024-DEPLOY-CYBER-06-TOOLS: Cybersecurity tools and frameworks
+  * Eligible: companies and organizations deploying operational cybersecurity solutions
+  * Grant rate: up to 50% (co-financing required)
+  * Budget per project: EUR 500K - 3M
+  * PQC migration tools explicitly listed as priority area
+
+- DIGITAL-ECCC-2024-DEPLOY-CYBER-05-SKILLS: Cybersecurity skills and training
+  * For: training providers, industry associations, academic institutions
+  * Includes PQC-specific training programs
+
+- DIGITAL-ECCC-2024-DEPLOY-CYBER-04-GOVERNANCE: NIS2 implementation support
+  * For: national authorities and their ICT/security providers
+  * Indirect market: startups can be service providers to beneficiaries
+
+=== EU CYBERSECURITY COMPETENCE COMMUNITY (ECCC COMMUNITY) ===
+
+ECCC manages a community of stakeholders:
+- Research institutions
+- Industry (including SMEs)
+- Public authorities
+- Civil society
+
+Joining the ECCC Community:
+- Free registration: https://www.eccc.europa.eu/community
+- Benefits: early notification of calls, matchmaking for consortia,
+  access to NCC Poland support, networking with EU-funded projects
+- CRITICAL STEP for a cybersecurity startup: join BEFORE applying
+
+=== NATIONAL CYBERSECURITY INITIATIVES IN POLAND ===
+
+Krajowy Plan Odbudowy (KPO) - Cybersecurity Component:
+Poland's Recovery and Resilience Plan includes cybersecurity investment:
+- CERT Polska capacity expansion
+- Cybersecurity tools for critical infrastructure
+- SME cybersecurity support programs
+
+KPO cybersecurity milestone C5.1:
+- Development of cybersecurity competence centers
+- Support for SMEs in cybersecurity maturity improvement
+- Procurement of cybersecurity monitoring tools
+
+Potential for PQC startup: being a service provider for KPO-funded projects
+Contact: NASK / MC (Ministerstwo Cyfryzacji)
+
+Polska Strategia Cyberbezpieczenstwa 2024-2029:
+- Published by MC (Ministry of Digitization)
+- Identifies quantum cryptography as strategic technology
+- Includes funding commitments through FENG/KPO
+
+=== FINANCIAL INTERMEDIARIES AND MIXING ===
+
+Key principle: EU grants can often be STACKED with Polish programs.
+Example stack for a PQC startup:
+
+Source 1: NCBR Sciezka SMART B+R module - covers R&D costs (up to 80%)
+Source 2: EIC Accelerator grant - covers market entry and scale-up costs (up to 2.5M EUR)
+Source 3: Digital Europe deployment project - covers customer-side deployment support
+Source 4: BGK low-interest loan - covers operational capital between grants
+
+The rule: you cannot finance the SAME COST from two EU sources simultaneously.
+But you can finance different budget lines from different programs.
+
+Recommended consultation: PARP provides free grant stacking advisory service.
+Book via: https://www.parp.gov.pl/doradztwo-dla-msp
+
+=== EU PQC PROCUREMENT - INDIRECT REVENUE OPPORTUNITY ===
+
+The EU and Member States are procuring PQC-ready solutions for public systems:
+- NIS2 requires public sector to deploy state-of-the-art cryptography
+- EU institutions (EC, EMA, EIB, etc.) are auditing and upgrading cryptographic systems
+- Estimated procurement: EUR 200-500M over 2025-2028 for EU cryptographic infrastructure
+
+Procurement vehicles:
+- PEPPOL / TED (Tenders Electronic Daily): https://ted.europa.eu/ - monitor for cybersecurity tenders
+- NATO NCIA procurement for PQC (defense-adjacent)
+- Polish ZKP (Zamowienia Publiczne): https://www.gov.pl/web/uzp - local public procurement
+
+Revenue model from procurement: Audit as a Service (AaaS) contracts with public bodies
+- EU institutions pay EUR 50-200K per compliance audit
+- Repeat engagements as regulations update (ENISA guidelines update annually)
+- Framework agreements typically 2-4 years
+
+=== SUMMARY: GRANT PRIORITY RANKING FOR PQC STARTUP ===
+
+Priority 1 - IMMEDIATE ACTION (months 1-3):
+- Contact PARP for free advisory
+- Register in EU Funding & Tenders Portal (get PIC)
+- Join ECCC Community (free, enables future calls)
+- Register on KPK Poland mailing list for Horizon calls
+
+Priority 2 - SHORT TERM (months 3-9):
+- Sciezka SMART via PARP (up to 20M PLN, covers 50-80% of R&D costs)
+- EIC Accelerator application (up to EUR 2.5M non-dilutive + optional equity)
+
+Priority 3 - MEDIUM TERM (months 6-18):
+- Digital Europe ECCC call (deployment-focused, 50% co-financing)
+- Horizon Europe Cluster 3 (research partner role, or consortium lead)
+- NCBR programs with academic partner
+
+Non-grant funding to bridge gaps:
+- BGK loan (preferencyjny): low-interest, available from BGK branches
+- Polish VC with public co-investor: OTB Ventures, Inovo, PKO/Startup Hub

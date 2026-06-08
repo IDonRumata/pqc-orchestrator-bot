@@ -129,12 +129,21 @@ class Settings(BaseSettings):
     @field_validator("allowed_user_ids", "news_sources", mode="before")
     @classmethod
     def _split_csv(cls, value: object) -> object:
-        """Allow comma separated env strings for list fields."""
+        """Allow comma separated env strings for list fields.
+
+        Handles three formats pydantic-settings may produce:
+        - plain string: "123456789" or "123,456"
+        - pre-parsed int/float (when json.loads succeeds on a bare number): 123456789
+        - already a list (e.g. when value comes from defaults)
+        """
         if isinstance(value, str):
             stripped = value.strip()
             if not stripped:
                 return []
             return [item.strip() for item in stripped.split(",") if item.strip()]
+        if isinstance(value, (int, float)):
+            # json.loads("8300011892") returns an int - wrap it back into a list.
+            return [value]
         return value
 
     @property

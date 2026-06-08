@@ -1,0 +1,22 @@
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Knowledge base source documents (may be large or licensed)
+knowledge_base/*
+!knowledge_base/.gitkeep
+
+# Local model cache (fastembed downloads here)
+.cache/
+.fastembed_cache/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

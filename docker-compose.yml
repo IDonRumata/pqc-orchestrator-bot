@@ -1,0 +1,56 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    # Bind only to localhost so the database is never exposed to the network.
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  bot:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      ALLOWED_USER_IDS: ${ALLOWED_USER_IDS}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      LOG_LEVEL: ${LOG_LEVEL}
+      ROUTER_MODEL: ${ROUTER_MODEL}
+      NEWS_CLASSIFIER_MODEL: ${NEWS_CLASSIFIER_MODEL}
+      CFO_MODEL: ${CFO_MODEL}
+      PQC_MODEL: ${PQC_MODEL}
+      LEGAL_MODEL: ${LEGAL_MODEL}
+      GRANTS_MODEL: ${GRANTS_MODEL}
+      CRITIC_MODEL: ${CRITIC_MODEL}
+    # Allow time for a graceful shutdown on SIGTERM.
+    stop_grace_period: 30s
+    volumes:
+      - ./knowledge_base:/app/knowledge_base:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+volumes:
+  pgdata:

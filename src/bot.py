@@ -742,16 +742,25 @@ class BotApplication:
     async def start(self) -> None:
         """Initialize DB, register bot commands and start polling."""
         await init_db()
-        await self._bot.set_my_commands([
-            BotCommand(command="start",    description="Главное меню"),
-            BotCommand(command="docs",     description="База знаний — документы"),
-            BotCommand(command="agents",   description="Список агентов"),
-            BotCommand(command="memory",   description="Память проекта"),
-            BotCommand(command="remember", description="Запомнить факт: /remember текст"),
-            BotCommand(command="status",   description="Статус системы"),
-            BotCommand(command="help",     description="Как пользоваться"),
-            BotCommand(command="menu",     description="Показать меню"),
-        ])
+        # Registering the command menu is non essential: a transient network
+        # error to api.telegram.org must never prevent the bot from polling.
+        try:
+            await self._bot.set_my_commands([
+                BotCommand(command="start",    description="Главное меню"),
+                BotCommand(command="docs",     description="База знаний — документы"),
+                BotCommand(command="agents",   description="Список агентов"),
+                BotCommand(command="memory",   description="Память проекта"),
+                BotCommand(command="remember", description="Запомнить факт: /remember текст"),
+                BotCommand(command="status",   description="Статус системы"),
+                BotCommand(command="help",     description="Как пользоваться"),
+                BotCommand(command="menu",     description="Показать меню"),
+            ])
+        except Exception as exc:  # noqa: BLE001 - menu registration is best effort
+            log_event(
+                logger, logging.WARNING,
+                "set_my_commands failed, continuing without menu refresh",
+                error=str(exc),
+            )
         self._monitor_task = asyncio.create_task(self._monitor.run_forever())
         log_event(logger, logging.INFO, "Bot started, polling")
         await self._dispatcher.start_polling(self._bot, handle_signals=False)

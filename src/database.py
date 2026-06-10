@@ -22,7 +22,7 @@ from sqlalchemy.ext.asyncio import (
 
 from .config import get_settings
 from .logging_config import log_event
-from .models import AgentRun, Base, KnowledgeChunk, MonitoredItem
+from .models import AgentRun, Base, KnowledgeChunk, MemoryFact, MonitoredItem
 
 logger = logging.getLogger(__name__)
 
@@ -242,6 +242,105 @@ async def get_monitored_count() -> int:
             select(func.count()).select_from(MonitoredItem)
         )
         return result.scalar_one()
+
+
+async def get_memory_count() -> int:
+    """Return the total number of stored project memory facts."""
+    async with session_scope() as session:
+        result = await session.execute(
+            select(func.count()).select_from(MemoryFact)
+        )
+        return result.scalar_one()
+
+
+# --- Project memory operations ---------------------------------------------
+
+
+async def add_memory_fact(
+    session: AsyncSession,
+    *,
+    kind: str,
+    content: str,
+    source: str,
+    embedding_local: list[float],
+    embedding_openai: list[float] | None,
+    tags: str | None = None,
+) -> None:
+    """Persist a single durable project memory fact."""
+    fact = MemoryFact(
+        kind=kind,
+        content=content,
+        source=source,
+        tags=tags,
+        embedding_local=embedding_local,
+        embedding_openai=embedding_openai,
+    )
+    session.add(fact)
+
+
+async def search_memory_facts(
+    session: AsyncSession,
+    *,
+    query_vector: list[float],
+    provider: str,
+    limit: int,
+) -> list[MemoryFact]:
+    """Cosine search over project memory, mirrors search_chunks fallback logic."""
+    column = (
+        MemoryFact.embedding_openai
+        if provider == "openai"
+        else MemoryFact.embedding_local
+    )
+    stmt = (
+        select(MemoryFact)
+        .where(column.is_not(None))
+        .order_by(column.cosine_distance(query_vector))
+        .limit(limit)
+    )
+    result = await session.execute(stmt)
+    rows = list(result.scalars().all())
+    if not rows and provider == "openai":
+        return await search_memory_facts(
+            session, query_vector=query_vector, provider="local", limit=limit
+        )
+    return rows
+
+
+async def nearest_memory_distance(
+    session: AsyncSession,
+    *,
+    query_vector: list[float],
+    provider: str,
+) -> float | None:
+    """Return the smallest cosine distance to any existing fact, or None if empty.
+
+    Used to deduplicate auto captured facts before insertion.
+    """
+    column = (
+        MemoryFact.embedding_openai
+        if provider == "openai"
+        else MemoryFact.embedding_local
+    )
+    stmt = (
+        select(column.cosine_distance(query_vector))
+        .where(column.is_not(None))
+        .order_by(column.cosine_distance(query_vector))
+        .limit(1)
+    )
+    result = await session.execute(stmt)
+    return result.scalar_one_or_none()
+
+
+async def list_recent_memory_facts(limit: int = 20) -> list[MemoryFact]:
+    """Return the most recently stored memory facts, newest first."""
+    async with session_scope() as session:
+        stmt = (
+            select(MemoryFact)
+            .order_by(MemoryFact.created_at.desc())
+            .limit(limit)
+        )
+        result = await session.execute(stmt)
+        return list(result.scalars().all())
 
 
 # --- Observability operations ----------------------------------------------

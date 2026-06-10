@@ -29,14 +29,17 @@ from .config import Settings, get_settings
 from .database import (
     dispose_engine,
     get_chunk_count,
+    get_memory_count,
     get_monitored_count,
     init_db,
+    list_recent_memory_facts,
 )
 from .embeddings import EmbeddingRouter
 from .logging_config import configure_logging, log_event
 from .news_monitor import NewsMonitor
 from .openrouter_client import OpenRouterClient
 from .orchestrator import Orchestrator
+from .text_utils import to_telegram_html
 
 logger = logging.getLogger(__name__)
 
@@ -49,10 +52,13 @@ _TELEGRAM_LIMIT = 4096
 _BTN_DOCS = "📚 База знаний"
 _BTN_AGENTS = "🤖 Агенты"
 _BTN_NEWS = "📰 Новости"
+_BTN_MEMORY = "🧠 Память"
 _BTN_STATUS = "📊 Статус"
 _BTN_HELP = "ℹ️ Помощь"
 
-_REPLY_BUTTONS = {_BTN_DOCS, _BTN_AGENTS, _BTN_NEWS, _BTN_STATUS, _BTN_HELP}
+_REPLY_BUTTONS = {
+    _BTN_DOCS, _BTN_AGENTS, _BTN_NEWS, _BTN_MEMORY, _BTN_STATUS, _BTN_HELP
+}
 
 
 def _main_keyboard() -> ReplyKeyboardMarkup:
@@ -60,13 +66,24 @@ def _main_keyboard() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text=_BTN_DOCS), KeyboardButton(text=_BTN_AGENTS)],
-            [KeyboardButton(text=_BTN_NEWS), KeyboardButton(text=_BTN_STATUS)],
-            [KeyboardButton(text=_BTN_HELP)],
+            [KeyboardButton(text=_BTN_NEWS), KeyboardButton(text=_BTN_MEMORY)],
+            [KeyboardButton(text=_BTN_STATUS), KeyboardButton(text=_BTN_HELP)],
         ],
         resize_keyboard=True,
         persistent=True,
         input_field_placeholder="Задай вопрос по PQC стратегии...",
     )
+
+
+# Human readable labels for memory fact kinds.
+_MEMORY_KIND_LABELS = {
+    "done": "✅ Сделано",
+    "decision": "🧭 Решение",
+    "preference": "⚙️ Предпочтение",
+    "discussion": "💬 Обсуждение",
+    "news": "📰 Новость",
+    "note": "📝 Заметка",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -306,7 +323,14 @@ _HELP = """\
 📚 <b>База знаний</b> — 9 документов с описанием и прямым запросом к агентам
 🤖 <b>Агенты</b> — описание каждого специалиста
 📰 <b>Новости</b> — последние PQC-новости из мониторинга 7 RSS-лент
+🧠 <b>Память</b> — что ты уже сделал, решил и обсудил
 📊 <b>Статус</b> — размер базы знаний, модели, конфигурация
+
+<b>🧠 Память проекта</b>
+Бот запоминает, что ты уже сделал и какие решения принял, и опирается на это \
+в следующих ответах, чтобы не повторять пройденное. Память пополняется \
+автоматически после каждого диалога, из критических новостей, \
+а вручную — командой <code>/remember текст</code>.
 
 <b>Фоновый мониторинг</b> проверяет RSS каждые 12ч и присылает алерты \
 о критических изменениях в законах, стандартах и грантах.\
@@ -399,8 +423,9 @@ class BotApplication:
         try:
             chunks = await get_chunk_count()
             news = await get_monitored_count()
+            memory = await get_memory_count()
         except Exception:  # noqa: BLE001
-            chunks = news = -1
+            chunks = news = memory = -1
         embed_mode = (
             "OpenAI + fastembed (гибрид)"
             if self._settings.openai_embeddings_enabled
@@ -410,7 +435,8 @@ class BotApplication:
             "📊 <b>Статус системы</b>\n\n"
             f"🗄️ <b>База знаний:</b> {chunks} чанков\n"
             f"📰 <b>Мониторинг новостей:</b> {news} записей\n"
-            f"🧠 <b>Эмбеддинги:</b> {embed_mode}\n\n"
+            f"🧠 <b>Память проекта:</b> {memory} фактов\n"
+            f"🔢 <b>Эмбеддинги:</b> {embed_mode}\n\n"
             "<b>Модели агентов:</b>\n"
             f"  Роутер: <code>{self._settings.router_model}</code>\n"
             f"  PQC:    <code>{self._settings.pqc_model}</code>\n"
@@ -421,6 +447,33 @@ class BotApplication:
             f"🕐 <b>Мониторинг RSS:</b> каждые {self._settings.news_interval_hours}ч\n"
             f"📡 <b>Источников RSS:</b> {len(self._settings.news_sources)}"
         )
+
+    # --- Memory text builder ------------------------------------------------
+
+    async def _build_memory_text(self, limit: int = 15) -> str:
+        """Render the most recent project memory facts grouped by recency."""
+        try:
+            facts = await list_recent_memory_facts(limit=limit)
+        except Exception as exc:  # noqa: BLE001
+            log_event(
+                logger, logging.WARNING, "Memory listing failed", error=str(exc)
+            )
+            facts = []
+        if not facts:
+            return (
+                "🧠 <b>Память проекта пуста</b>\n\n"
+                "Я начну запоминать, что ты сделал и какие решения принял, "
+                "после первых диалогов. Можно добавить факт вручную:\n"
+                "<code>/remember Запустил бота на VPS Beget</code>"
+            )
+        lines = ["🧠 <b>Память проекта</b>", "<i>что уже сделано, решено и обсуждалось</i>", ""]
+        for fact in facts:
+            label = _MEMORY_KIND_LABELS.get(fact.kind, "📝 Заметка")
+            content = to_telegram_html(fact.content)
+            lines.append(f"{label}: {content}")
+        lines.append("")
+        lines.append("Добавить факт вручную: <code>/remember текст</code>")
+        return "\n".join(lines)
 
     # --- Handlers -----------------------------------------------------------
 
@@ -482,6 +535,40 @@ class BotApplication:
                 reply_markup=_main_keyboard(),
             )
 
+        @router.message(Command("memory"))
+        async def on_memory_cmd(message: Message) -> None:
+            if not allowed(self._user_id(message)):
+                await message.answer("Доступ запрещен.")
+                return
+            await message.answer(await self._build_memory_text())
+
+        @router.message(Command("remember"))
+        async def on_remember_cmd(message: Message) -> None:
+            if not allowed(self._user_id(message)):
+                await message.answer("Доступ запрещен.")
+                return
+            # Everything after the command word is the fact to store.
+            raw = (message.text or "").split(maxsplit=1)
+            content = raw[1].strip() if len(raw) > 1 else ""
+            if not content:
+                await message.answer(
+                    "Напиши факт после команды, например:\n"
+                    "<code>/remember Зарегистрировал домен pqcaudit.eu на OVH</code>"
+                )
+                return
+            try:
+                await self._orchestrator.remember(
+                    content, kind="note", source="manual"
+                )
+                await message.answer("🧠 Запомнил и добавил в память проекта.")
+            except Exception as exc:  # noqa: BLE001
+                log_event(
+                    logger, logging.ERROR, "Manual remember failed", error=str(exc)
+                )
+                await message.answer(
+                    "Не удалось сохранить факт. Попробуй ещё раз чуть позже."
+                )
+
         # -- Reply keyboard buttons ------------------------------------------
 
         @router.message(F.text == _BTN_DOCS)
@@ -511,6 +598,12 @@ class BotApplication:
                 "sources. What are the most important updates in post-quantum cryptography, "
                 "new NIST standards, and regulatory changes that affect our startup?",
             )
+
+        @router.message(F.text == _BTN_MEMORY)
+        async def on_btn_memory(message: Message) -> None:
+            if not allowed(self._user_id(message)):
+                return
+            await message.answer(await self._build_memory_text())
 
         @router.message(F.text == _BTN_STATUS)
         async def on_btn_status(message: Message) -> None:
@@ -578,7 +671,7 @@ class BotApplication:
                 async with ChatActionSender.typing(bot=self._bot, chat_id=chat_id):
                     result = await self._orchestrator.handle(uid, doc["query"])
                 header = self._format_header(result)
-                full = f"{header}\n\n{result.answer}"
+                full = f"{header}\n\n{to_telegram_html(result.answer)}"
                 await placeholder.delete()
                 await self._send_long(chat_id, full)
             except Exception as exc:  # noqa: BLE001
@@ -630,7 +723,9 @@ class BotApplication:
             )
             return
         header = self._format_header(result)
-        await self._send_long(message.chat.id, f"{header}\n\n{result.answer}")
+        await self._send_long(
+            message.chat.id, f"{header}\n\n{to_telegram_html(result.answer)}"
+        )
 
     @staticmethod
     def _format_header(result) -> str:  # type: ignore[no-untyped-def]
@@ -638,7 +733,7 @@ class BotApplication:
         critic = "да" if result.critic_used else "нет"
         return (
             f"<i>Агенты: {agents} | Критик: {critic} | "
-            f"RAG: {result.rag_chunks_used} чанков | "
+            f"RAG: {result.rag_chunks_used} | Память: {result.memory_facts_used} | "
             f"Токены: {result.tokens_total} | {result.duration_ms} мс</i>"
         )
 
@@ -648,12 +743,14 @@ class BotApplication:
         """Initialize DB, register bot commands and start polling."""
         await init_db()
         await self._bot.set_my_commands([
-            BotCommand(command="start",   description="Главное меню"),
-            BotCommand(command="docs",    description="База знаний — документы"),
-            BotCommand(command="agents",  description="Список агентов"),
-            BotCommand(command="status",  description="Статус системы"),
-            BotCommand(command="help",    description="Как пользоваться"),
-            BotCommand(command="menu",    description="Показать меню"),
+            BotCommand(command="start",    description="Главное меню"),
+            BotCommand(command="docs",     description="База знаний — документы"),
+            BotCommand(command="agents",   description="Список агентов"),
+            BotCommand(command="memory",   description="Память проекта"),
+            BotCommand(command="remember", description="Запомнить факт: /remember текст"),
+            BotCommand(command="status",   description="Статус системы"),
+            BotCommand(command="help",     description="Как пользоваться"),
+            BotCommand(command="menu",     description="Показать меню"),
         ])
         self._monitor_task = asyncio.create_task(self._monitor.run_forever())
         log_event(logger, logging.INFO, "Bot started, polling")

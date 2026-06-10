@@ -94,6 +94,19 @@ class Settings(BaseSettings):
     # --- Orchestration ------------------------------------------------------
     max_agents_per_request: int = Field(default=3)
 
+    # --- Project memory -----------------------------------------------------
+    # Durable facts about what the founder already did / decided, injected into
+    # every agent so answers build on prior state instead of repeating it.
+    memory_top_k: int = Field(default=6, description="Memory facts injected per query")
+    memory_auto_capture: bool = Field(
+        default=True,
+        description="Extract and store durable facts after each answer",
+    )
+    memory_dedup_distance: float = Field(
+        default=0.12,
+        description="Skip auto facts whose cosine distance to an existing fact is below this",
+    )
+
     # --- News monitor -------------------------------------------------------
     news_interval_hours: int = Field(default=12)
     news_initial_delay_seconds: int = Field(default=30)

@@ -75,6 +75,33 @@ class MonitoredItem(Base):
     )
 
 
+class MemoryFact(Base):
+    """A durable fact about project state for long term assistant memory.
+
+    Stores what the founder has already done, decided, prefers or discussed, so
+    future answers build on prior state instead of repeating it. Carries the same
+    two embedding columns as KnowledgeChunk for semantic retrieval, the openai
+    vector is optional and the local vector is always present.
+    """
+
+    __tablename__ = "memory_facts"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    # done | decision | preference | discussion | news | note
+    kind: Mapped[str] = mapped_column(String(32), nullable=False, index=True, default="note")
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    tags: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    # manual | auto | news
+    source: Mapped[str] = mapped_column(String(32), nullable=False, default="manual")
+    embedding_local: Mapped[list[float]] = mapped_column(Vector(_DIM), nullable=False)
+    embedding_openai: Mapped[list[float] | None] = mapped_column(
+        Vector(_DIM), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+
+
 class AgentRun(Base):
     """Audit log of every orchestration run for observability and cost tracking."""
 

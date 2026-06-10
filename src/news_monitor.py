@@ -19,6 +19,7 @@ import httpx
 
 from .config import Settings, get_settings
 from .database import (
+    add_memory_fact,
     delete_chunks_by_doc,
     get_known_external_ids,
     insert_chunk,
@@ -203,6 +204,7 @@ class NewsMonitor:
 
         if is_critical:
             await self._reindex(entry, body, category)
+            await self._store_news_memory(entry, summary, category)
 
         async with session_scope() as session:
             await record_monitored_item(
@@ -300,6 +302,38 @@ class NewsMonitor:
                 error=str(exc),
             )
             return {"is_critical": False, "category": "other", "summary": ""}
+
+    async def _store_news_memory(
+        self, entry: FeedEntry, summary: str, category: str
+    ) -> None:
+        """Record a critical news item as a project memory fact (kind=news).
+
+        This keeps the assistant aware of fresh developments in its long term
+        memory, not only in the RAG index, so it can reference them proactively.
+        """
+        gist = (summary or entry.title).strip()
+        content = f"Новость ({category}): {entry.title.strip()}. {gist}"[:1000]
+        try:
+            embedding = (await self._embedder.embed_documents([content]))[0]
+            async with session_scope() as session:
+                await add_memory_fact(
+                    session,
+                    kind="news",
+                    content=content,
+                    source="news",
+                    tags=category,
+                    embedding_local=embedding.local,
+                    embedding_openai=embedding.openai,
+                )
+            log_event(
+                logger, logging.INFO, "News stored in project memory",
+                source=entry.source, category=category,
+            )
+        except Exception as exc:  # noqa: BLE001 - memory write is best effort
+            log_event(
+                logger, logging.WARNING, "Failed to store news memory",
+                error=str(exc),
+            )
 
     async def _reindex(self, entry: FeedEntry, body: str, category: str) -> None:
         """Chunk, embed and store a critical document, replacing stale chunks."""

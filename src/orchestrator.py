@@ -17,7 +17,14 @@ from dataclasses import dataclass, field
 from pydantic import BaseModel, Field, field_validator
 
 from .config import Settings, get_settings
-from .database import record_agent_run, search_chunks, session_scope
+from .database import (
+    add_memory_fact,
+    nearest_memory_distance,
+    record_agent_run,
+    search_chunks,
+    search_memory_facts,
+    session_scope,
+)
 from .embeddings import EmbeddingRouter
 from .logging_config import log_event
 from .openrouter_client import ChatMessage, OpenRouterClient
@@ -26,17 +33,23 @@ from .prompts import (
     CRITIC_SYSTEM_PROMPT,
     GRANTS_SYSTEM_PROMPT,
     LEGAL_SYSTEM_PROMPT,
+    MEMORY_EXTRACTOR_SYSTEM_PROMPT,
     PQC_SYSTEM_PROMPT,
     ROUTER_SYSTEM_PROMPT,
     build_critic_user_prompt,
+    build_memory_extractor_prompt,
+    build_router_user_prompt,
     build_specialist_user_prompt,
 )
 
 logger = logging.getLogger(__name__)
 
-# Agents that require RAG context retrieval.
-_RAG_AGENTS = {"legal", "grants"}
+# Agents whose answers benefit from RAG context (knowledge base + fresh news).
+_RAG_AGENTS = {"pqc", "legal", "grants"}
 _VALID_AGENTS = {"cfo", "pqc", "legal", "grants"}
+
+# Memory fact kinds the auto extractor is allowed to store.
+_VALID_MEMORY_KINDS = {"done", "decision", "preference", "discussion", "news", "note"}
 
 
 @dataclass(slots=True)
@@ -64,7 +77,7 @@ def _build_agent_registry(settings: Settings) -> dict[str, AgentDefinition]:
             title="Ученый-криптограф",
             system_prompt=PQC_SYSTEM_PROMPT,
             model_attr="pqc_model",
-            needs_rag=False,
+            needs_rag=True,
         ),
         "legal": AgentDefinition(
             key="legal",
@@ -119,6 +132,7 @@ class OrchestrationResult:
     agents_used: list[str] = field(default_factory=list)
     reasoning: str = ""
     rag_chunks_used: int = 0
+    memory_facts_used: int = 0
     tokens_total: int = 0
     duration_ms: int = 0
     critic_used: bool = False
@@ -137,6 +151,8 @@ class Orchestrator:
         self._embedder = embedder
         self._settings = settings or get_settings()
         self._registry = _build_agent_registry(self._settings)
+        # Keep references to fire and forget capture tasks so they are not GC'd.
+        self._bg_tasks: set[asyncio.Task[None]] = set()
 
     async def handle(self, user_id: int, query: str) -> OrchestrationResult:
         """Run the full pipeline for a user query and persist an audit record."""
@@ -163,22 +179,32 @@ class Orchestrator:
             reasoning=decision.reasoning,
         )
 
-        # Retrieve RAG context once if any RAG agent was selected.
-        context_block, chunks_used = await self._retrieve_context(decision)
+        # Retrieve RAG context and project memory in parallel.
+        (context_block, chunks_used), (memory_block, memory_used) = await asyncio.gather(
+            self._retrieve_context(decision),
+            self._retrieve_memory(query),
+        )
 
         # Run all selected agents in parallel.
-        outputs = await self._run_agents(decision.agents, query, context_block)
+        outputs = await self._run_agents(
+            decision.agents, query, context_block, memory_block
+        )
         for output in outputs:
             tokens_total += output.tokens
 
         # Decide whether the critic is needed.
         if len(outputs) > 1:
-            final_answer, critic_tokens = await self._run_critic(query, outputs)
+            final_answer, critic_tokens = await self._run_critic(
+                query, outputs, memory_block
+            )
             tokens_total += critic_tokens
             critic_used = True
         else:
             final_answer = self._format_single(outputs[0])
             critic_used = False
+
+        # Best effort, capture durable project memory without blocking the reply.
+        self._schedule_memory_capture(query, final_answer)
 
         duration_ms = int((time.monotonic() - started) * 1000)
 
@@ -208,6 +234,7 @@ class Orchestrator:
             agents_used=decision.agents,
             reasoning=decision.reasoning,
             rag_chunks_used=chunks_used,
+            memory_facts_used=memory_used,
             tokens_total=tokens_total,
             duration_ms=duration_ms,
             critic_used=critic_used,
@@ -217,7 +244,7 @@ class Orchestrator:
         """Ask the router model which agents to engage."""
         messages = [
             ChatMessage(role="system", content=ROUTER_SYSTEM_PROMPT),
-            ChatMessage(role="user", content=query),
+            ChatMessage(role="user", content=build_router_user_prompt(query)),
         ]
         try:
             data, tokens = await self._client.chat_json(
@@ -286,11 +313,16 @@ class Orchestrator:
         return block, len(chunks)
 
     async def _run_agents(
-        self, agent_keys: list[str], query: str, context_block: str | None
+        self,
+        agent_keys: list[str],
+        query: str,
+        context_block: str | None,
+        memory_block: str | None,
     ) -> list[AgentOutput]:
         """Run all selected specialist agents concurrently."""
         tasks = [
-            self._run_single_agent(key, query, context_block) for key in agent_keys
+            self._run_single_agent(key, query, context_block, memory_block)
+            for key in agent_keys
         ]
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -321,14 +353,21 @@ class Orchestrator:
         return outputs
 
     async def _run_single_agent(
-        self, key: str, query: str, context_block: str | None
+        self,
+        key: str,
+        query: str,
+        context_block: str | None,
+        memory_block: str | None,
     ) -> AgentOutput:
         """Run one specialist agent inside its isolated system prompt."""
         definition = self._registry[key]
         model = getattr(self._settings, definition.model_attr)
-        # Context is only handed to agents that asked for it.
+        # RAG context is only handed to agents that asked for it. Project memory
+        # is shared with every agent so none of them repeats finished work.
         agent_context = context_block if definition.needs_rag else None
-        user_prompt = build_specialist_user_prompt(query, agent_context)
+        user_prompt = build_specialist_user_prompt(
+            query, agent_context, memory_block
+        )
         messages = [
             ChatMessage(role="system", content=definition.system_prompt),
             ChatMessage(role="user", content=user_prompt),
@@ -346,11 +385,11 @@ class Orchestrator:
         )
 
     async def _run_critic(
-        self, query: str, outputs: list[AgentOutput]
+        self, query: str, outputs: list[AgentOutput], memory_block: str | None
     ) -> tuple[str, int]:
         """Run the Chief Critic to merge and validate agent answers."""
         agent_answers = {output.title: output.answer for output in outputs}
-        user_prompt = build_critic_user_prompt(query, agent_answers)
+        user_prompt = build_critic_user_prompt(query, agent_answers, memory_block)
         messages = [
             ChatMessage(role="system", content=CRITIC_SYSTEM_PROMPT),
             ChatMessage(role="user", content=user_prompt),
@@ -366,6 +405,125 @@ class Orchestrator:
     def _format_single(output: AgentOutput) -> str:
         """Format a single agent answer when the critic is skipped."""
         return f"Агент: {output.title}\n\n{output.answer}"
+
+    # --- Project memory -----------------------------------------------------
+
+    async def _retrieve_memory(self, query: str) -> tuple[str | None, int]:
+        """Fetch the most relevant durable project facts for this query."""
+        if self._settings.memory_top_k <= 0:
+            return None, 0
+        try:
+            embedding = await self._embedder.embed_query(query)
+            async with session_scope() as session:
+                facts = await search_memory_facts(
+                    session,
+                    query_vector=embedding.vector,
+                    provider=embedding.provider,
+                    limit=self._settings.memory_top_k,
+                )
+        except Exception as exc:  # noqa: BLE001 - memory must never break a reply
+            log_event(
+                logger, logging.WARNING, "Memory retrieval failed", error=str(exc)
+            )
+            return None, 0
+        if not facts:
+            return None, 0
+        lines = [f"- [{fact.kind}] {fact.content}" for fact in facts]
+        log_event(logger, logging.INFO, "Memory retrieved", facts=len(facts))
+        return "\n".join(lines), len(facts)
+
+    async def remember(
+        self, content: str, *, kind: str = "note", source: str = "manual"
+    ) -> bool:
+        """Embed and store a single project memory fact. Returns True on success."""
+        content = content.strip()
+        if not content:
+            return False
+        if kind not in _VALID_MEMORY_KINDS:
+            kind = "note"
+        embedding = (await self._embedder.embed_documents([content]))[0]
+        async with session_scope() as session:
+            await add_memory_fact(
+                session,
+                kind=kind,
+                content=content[:1000],
+                source=source,
+                embedding_local=embedding.local,
+                embedding_openai=embedding.openai,
+            )
+        log_event(logger, logging.INFO, "Memory fact stored", kind=kind, source=source)
+        return True
+
+    def _schedule_memory_capture(self, query: str, final_answer: str) -> None:
+        """Spawn a background task that extracts and stores durable facts."""
+        if not self._settings.memory_auto_capture:
+            return
+        task = asyncio.create_task(self._capture_memory(query, final_answer))
+        self._bg_tasks.add(task)
+        task.add_done_callback(self._bg_tasks.discard)
+
+    async def _capture_memory(self, query: str, final_answer: str) -> None:
+        """Extract durable facts from one exchange and store the new ones."""
+        try:
+            messages = [
+                ChatMessage(role="system", content=MEMORY_EXTRACTOR_SYSTEM_PROMPT),
+                ChatMessage(
+                    role="user",
+                    content=build_memory_extractor_prompt(query, final_answer),
+                ),
+            ]
+            data, _tokens = await self._client.chat_json(
+                model=self._settings.router_model,
+                messages=messages,
+                temperature=0.0,
+                max_tokens=600,
+            )
+            raw_facts = data.get("facts", []) if isinstance(data, dict) else []
+        except Exception as exc:  # noqa: BLE001 - capture is best effort
+            log_event(
+                logger, logging.WARNING, "Memory extraction failed", error=str(exc)
+            )
+            return
+
+        stored = 0
+        for item in raw_facts[:5]:
+            if not isinstance(item, dict):
+                continue
+            content = str(item.get("content", "")).strip()
+            kind = str(item.get("kind", "note")).strip().lower()
+            if not content:
+                continue
+            if kind not in _VALID_MEMORY_KINDS:
+                kind = "note"
+            try:
+                doc_emb = (await self._embedder.embed_documents([content]))[0]
+                query_emb = await self._embedder.embed_query(content)
+                async with session_scope() as session:
+                    distance = await nearest_memory_distance(
+                        session,
+                        query_vector=query_emb.vector,
+                        provider=query_emb.provider,
+                    )
+                    if (
+                        distance is not None
+                        and distance < self._settings.memory_dedup_distance
+                    ):
+                        continue  # Near duplicate, skip.
+                    await add_memory_fact(
+                        session,
+                        kind=kind,
+                        content=content[:1000],
+                        source="auto",
+                        embedding_local=doc_emb.local,
+                        embedding_openai=doc_emb.openai,
+                    )
+                    stored += 1
+            except Exception as exc:  # noqa: BLE001
+                log_event(
+                    logger, logging.WARNING, "Memory fact store failed", error=str(exc)
+                )
+        if stored:
+            log_event(logger, logging.INFO, "Memory auto captured", stored=stored)
 
     async def _persist_run(
         self,

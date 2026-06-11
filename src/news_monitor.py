@@ -19,7 +19,6 @@ import httpx
 
 from .config import Settings, get_settings
 from .database import (
-    add_memory_fact,
     delete_chunks_by_doc,
     get_known_external_ids,
     insert_chunk,
@@ -29,23 +28,18 @@ from .database import (
 from .embeddings import EmbeddingRouter
 from .logging_config import log_event
 from .openrouter_client import ChatMessage, OpenRouterClient
-from .prompts import NEWS_CLASSIFIER_SYSTEM_PROMPT, build_news_classifier_prompt
-from .text_utils import chunk_text
+from .prompts import (
+    NEWS_CLASSIFIER_SYSTEM_PROMPT,
+    NEWS_DIGEST_SYSTEM_PROMPT,
+    build_news_classifier_prompt,
+    build_news_digest_prompt,
+)
+from .text_utils import chunk_text, to_telegram_html
 
 logger = logging.getLogger(__name__)
 
 # Async callback used to push notifications to the user (set up by bot.py).
 NotifyCallback = Callable[[str], Awaitable[None]]
-
-_CRITICAL_MESSAGE = (
-    "Обнаружено критическое обновление грантовой программы / закона. "
-    "Локальная база данных успешно актуализирована.\n\n"
-    "Источник: {source}\n"
-    "Заголовок: {title}\n"
-    "Категория: {category}\n"
-    "Суть: {summary}\n"
-    "Ссылка: {url}"
-)
 
 
 @dataclass(slots=True)
@@ -58,6 +52,17 @@ class FeedEntry:
     url: str | None
     summary: str
     published_at: datetime | None
+
+
+@dataclass(slots=True)
+class CriticalItem:
+    """A critical update collected during one monitoring cycle for the digest."""
+
+    source: str
+    title: str
+    category: str
+    summary: str
+    url: str | None
 
 
 class NewsMonitor:
@@ -114,11 +119,19 @@ class NewsMonitor:
                 continue
 
     async def run_once(self) -> None:
-        """Run a single polling cycle across all sources."""
+        """Run a single polling cycle across all sources.
+
+        Every new item is classified and, if critical, ingested into the
+        knowledge base and recorded in the ledger so it is never processed
+        again. Notifications are NOT sent per item: all critical items found in
+        the cycle are collected and delivered as a single consolidated digest,
+        so a noisy feed cannot spam the chat.
+        """
         log_event(logger, logging.INFO, "News monitor cycle started")
+        critical: list[CriticalItem] = []
         for source_url in self._settings.news_sources:
             try:
-                await self._process_feed(source_url)
+                await self._process_feed(source_url, critical)
             except Exception as exc:  # noqa: BLE001 - one bad feed must not stop others
                 log_event(
                     logger,
@@ -127,10 +140,17 @@ class NewsMonitor:
                     feed=source_url,
                     error=str(exc),
                 )
-        log_event(logger, logging.INFO, "News monitor cycle finished")
+        if critical:
+            await self._send_digest(critical)
+        log_event(
+            logger, logging.INFO, "News monitor cycle finished",
+            critical=len(critical),
+        )
 
-    async def _process_feed(self, source_url: str) -> None:
-        """Fetch one feed, find new entries and process the critical ones."""
+    async def _process_feed(
+        self, source_url: str, critical: list[CriticalItem]
+    ) -> None:
+        """Fetch one feed, find new entries and collect the critical ones."""
         entries = await self._fetch_feed(source_url)
         if not entries:
             return
@@ -152,7 +172,9 @@ class NewsMonitor:
         )
 
         for entry in new_entries:
-            await self._process_entry(entry)
+            item = await self._process_entry(entry)
+            if item is not None:
+                critical.append(item)
 
     async def _fetch_feed(self, source_url: str) -> list[FeedEntry]:
         """Download and parse a single RSS feed."""
@@ -192,8 +214,12 @@ class NewsMonitor:
         except (TypeError, ValueError):
             return None
 
-    async def _process_entry(self, entry: FeedEntry) -> None:
-        """Classify a single entry and update the knowledge base if critical."""
+    async def _process_entry(self, entry: FeedEntry) -> CriticalItem | None:
+        """Classify a single entry, ingest it if critical, record it in the ledger.
+
+        Returns a CriticalItem when the entry is critical (for the cycle digest),
+        otherwise None. Always records the entry so it is never reprocessed.
+        """
         body = await self._fetch_full_text(entry)
         classification = await self._classify(entry.title, body)
         is_critical = bool(classification.get("is_critical"))
@@ -204,7 +230,6 @@ class NewsMonitor:
 
         if is_critical:
             await self._reindex(entry, body, category)
-            await self._store_news_memory(entry, summary, category)
 
         async with session_scope() as session:
             await record_monitored_item(
@@ -228,23 +253,15 @@ class NewsMonitor:
             category=category,
         )
 
-        if is_critical:
-            message = _CRITICAL_MESSAGE.format(
-                source=entry.source,
-                title=entry.title,
-                category=category,
-                summary=summary or "нет краткого описания",
-                url=entry.url or "нет ссылки",
-            )
-            try:
-                await self._notify(message)
-            except Exception as exc:  # noqa: BLE001
-                log_event(
-                    logger,
-                    logging.WARNING,
-                    "Failed to send critical notification",
-                    error=str(exc),
-                )
+        if not is_critical:
+            return None
+        return CriticalItem(
+            source=entry.source,
+            title=entry.title.strip(),
+            category=category,
+            summary=summary or "нет краткого описания",
+            url=entry.url,
+        )
 
     async def _fetch_full_text(self, entry: FeedEntry) -> str:
         """Try to download the full article text, fall back to the RSS summary."""
@@ -303,37 +320,66 @@ class NewsMonitor:
             )
             return {"is_critical": False, "category": "other", "summary": ""}
 
-    async def _store_news_memory(
-        self, entry: FeedEntry, summary: str, category: str
-    ) -> None:
-        """Record a critical news item as a project memory fact (kind=news).
+    async def _send_digest(self, items: list[CriticalItem]) -> None:
+        """Build and send a single consolidated digest for the whole cycle.
 
-        This keeps the assistant aware of fresh developments in its long term
-        memory, not only in the RAG index, so it can reference them proactively.
+        Tries an LLM written analytical summary, falls back to a plain
+        structured list if the model call fails. The knowledge base is already
+        updated per item, so the digest is purely a notification.
         """
-        gist = (summary or entry.title).strip()
-        content = f"Новость ({category}): {entry.title.strip()}. {gist}"[:1000]
+        intro = await self._write_digest_intro(items)
+        header = f"🛰 <b>Сводка мониторинга</b> — обновлений: {len(items)}"
+        parts: list[str] = [header]
+        if intro:
+            parts.append(intro)
+
+        # Compact source list, capped so a huge cycle stays readable.
+        cap = max(1, self._settings.news_digest_max_items)
+        listed = items[:cap]
+        source_lines = ["", "<b>Источники:</b>"]
+        for item in listed:
+            title = to_telegram_html(item.title)[:160]
+            line = f"- [{item.category}] {title}"
+            if item.url:
+                line += f"\n  {item.url}"
+            source_lines.append(line)
+        if len(items) > cap:
+            source_lines.append(f"...и ещё {len(items) - cap}")
+        parts.append("\n".join(source_lines))
+
+        message = "\n\n".join(parts)
         try:
-            embedding = (await self._embedder.embed_documents([content]))[0]
-            async with session_scope() as session:
-                await add_memory_fact(
-                    session,
-                    kind="news",
-                    content=content,
-                    source="news",
-                    tags=category,
-                    embedding_local=embedding.local,
-                    embedding_openai=embedding.openai,
-                )
+            await self._notify(message)
+        except Exception as exc:  # noqa: BLE001 - notification is best effort
             log_event(
-                logger, logging.INFO, "News stored in project memory",
-                source=entry.source, category=category,
+                logger, logging.WARNING, "Failed to send digest", error=str(exc)
             )
-        except Exception as exc:  # noqa: BLE001 - memory write is best effort
+
+    async def _write_digest_intro(self, items: list[CriticalItem]) -> str | None:
+        """Ask the cheap model for a short analytical intro, None on failure."""
+        if not self._settings.news_digest_enabled:
+            return None
+        payload = [
+            {"category": item.category, "title": item.title, "summary": item.summary}
+            for item in items
+        ]
+        messages = [
+            ChatMessage(role="system", content=NEWS_DIGEST_SYSTEM_PROMPT),
+            ChatMessage(role="user", content=build_news_digest_prompt(payload)),
+        ]
+        try:
+            result = await self._client.chat_completion(
+                model=self._settings.news_classifier_model,
+                messages=messages,
+                temperature=0.2,
+            )
+            return to_telegram_html(result.content.strip()) or None
+        except Exception as exc:  # noqa: BLE001 - fall back to the plain list
             log_event(
-                logger, logging.WARNING, "Failed to store news memory",
+                logger, logging.WARNING, "Digest intro generation failed",
                 error=str(exc),
             )
+            return None
 
     async def _reindex(self, entry: FeedEntry, body: str, category: str) -> None:
         """Chunk, embed and store a critical document, replacing stale chunks."""

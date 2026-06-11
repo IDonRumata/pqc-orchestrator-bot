@@ -110,6 +110,12 @@ class Settings(BaseSettings):
     # --- News monitor -------------------------------------------------------
     news_interval_hours: int = Field(default=12)
     news_initial_delay_seconds: int = Field(default=30)
+    # Send one consolidated analytical digest per cycle instead of one message
+    # per item, so a noisy feed (e.g. arXiv) cannot spam the chat.
+    news_digest_enabled: bool = Field(default=True)
+    news_digest_max_items: int = Field(
+        default=15, description="Max source lines listed under the digest"
+    )
     news_sources: list[str] = Field(
         default_factory=lambda: [
             # NIST cybersecurity news (verified working, covers FIPS and PQC announcements).
